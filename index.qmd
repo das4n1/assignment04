@@ -2,17 +2,48 @@
 title: "Index"
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: console
 ---
 
+```{r}
+
+library(readxl)
+library(ggplot2)
+library(dplyr)
+
+globalmilitary <- read_excel("C:/Users/easpi/OneDrive/Desktop/Georgetown MPP/MPP Spring 2023/Intro to Data Science/ppol670-assignments/assignment04/globalmilitary.xlsx")
+
+#Filter active and total military numbers to reflect minimums of 12,000 and 49,000 troops respectively
+
+globalmilitary_filt <- filter(globalmilitary,
+(paramilitary > 12000) & (total > 49000))
+
+View(globalmilitary_filt)
+
+ggplot(data = globalmilitary_filt,
+mapping = aes(x = active_military,
+y = total,
+size = per1000_capita_total)) +
+geom_point(shape = 21, alpha = 0.5, color = "white", fill = "red") +
+scale_size(name = "Per 1,000 Capita Total",
+range = c(1, 10), breaks = c(20, 150, 300),
+labels = c("20", "150", "300"),
+limits = c(0, NA)) +
+geom_text(aes(label = Country), showlegend = F, size = 2) +
+scale_y_continuous(limits = c(0, 8100000, breaks = seq(0, 8100000, 500000))) +
+scale_x_continuous(limits = c(0, 2200000, breaks = seq(0, 2200000, 200000))) +
+theme_minimal() +
+labs(x = "Active Duty Military",
+y = "Total Military",
+title = "A Look at Active-Duty Military Versus Total Military per Capita Globally",
+subtitle = "Countries with larger total and active duty forces are not the same per captia.",
+caption = "Source: 2017 Edition of The Military Balance | International Institute of Strategic
+Studies")
+
+
+```
 
 ```{r}
 
 ```
-
-
-
-```{r}
-
-```
-
-
