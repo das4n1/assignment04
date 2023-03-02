@@ -1,10 +1,22 @@
 ---
 title: "Index"
+author: "Thomas Adams and Elena Spielmann"
 format: html
 editor: visual
 editor_options: 
   chunk_output_type: console
+
 ---
+
+# Global and National Security
+
+## What it means and where the United States fits in
+
+National security is the security and defense of a sovereign state, including its citizens, economy, and institutions, which is regarded as a duty of government. While it was originally conceived as protection against military attack, national security is widely understood to include also non-military dimensions, including the security from terrorism, minimization of crime, economic security, energy security, environmental security, food security, and cyber-security. Similarly, national security risks include, in addition to the actions of other nation states, action by violent non-state actors, by narcotic cartels, and by multinational corporations, and also the effects of natural disasters.
+
+## A By-Country Look at Active-Duty Military Versus Total Military per Capita Globally
+
+## Countries with larger total and active duty forces are not the same per captia... and what it means. 
 
 ```{r}
 
@@ -14,12 +26,22 @@ library(dplyr)
 
 globalmilitary <- read_excel("C:/Users/easpi/OneDrive/Desktop/Georgetown MPP/MPP Spring 2023/Intro to Data Science/ppol670-assignments/assignment04/globalmilitary.xlsx")
 
-#Filter active and total military numbers to reflect minimums of 12,000 and 49,000 troops respectively
 
-globalmilitary_filt <- filter(globalmilitary,
-(paramilitary > 12000) & (total > 49000))
+# Rename "People's Republic of China" to "China"
+globalmilitary_filt <- globalmilitary %>% 
+  mutate(Country = ifelse(Country == "People's Republic of China", "China", Country))
 
-View(globalmilitary_filt)
+# Define a vector of the countries to keep
+countries_to_keep <- c("Russia", "Vietnam", "India", "Switzerland", "United States of America", "Iran", "China", "North Korea", "Ukraine", "Pakistan", "Thailand", "Cuba", "Brazil", "Zimbabwe")
+
+# Subset the data frame to only include the countries in the vector
+globalmilitary_filt <- subset(globalmilitary_filt, Country %in% countries_to_keep)
+
+
+#Get rid of scientific notation
+options(scipen=999)
+
+#Bubble plot reflecting total military versus active duty military per capita.
 
 ggplot(data = globalmilitary_filt,
 mapping = aes(x = active_military,
@@ -35,15 +57,66 @@ scale_y_continuous(limits = c(0, 8100000, breaks = seq(0, 8100000, 500000))) +
 scale_x_continuous(limits = c(0, 2200000, breaks = seq(0, 2200000, 200000))) +
 theme_minimal() +
 labs(x = "Active Duty Military",
-y = "Total Military",
-title = "A Look at Active-Duty Military Versus Total Military per Capita Globally",
+y = "Total Military", 
+title = "Active-Duty Military Versus Total Military per Capita Globally",
 subtitle = "Countries with larger total and active duty forces are not the same per captia.",
-caption = "Source: 2017 Edition of The Military Balance | International Institute of Strategic
-Studies")
+caption = "Source: The Military Balance (2017) | International Institute of Strategic Studies") +
+   theme(axis.text.y = element_text(angle = 0),
+        axis.title.y = element_text(angle = 0, vjust = 1))
 
+#NOTES: need to hide warning labels
 
 ```
 
+Total military is comprised of active military, reserve military and paramilitary. Countries with low numbers of both total military and active military tend to be countries that either have peaceful diplomatic agendas (ie. Switzerland) or countries that simply cannot afford to maintain a large military force (ie. Zimbabwe). Conversely, countries with less peaceful diplomatic agendas and greater financial resources have higher numbers of total military and active military (ie. China)
+
+Viewing each of these countries total and active military numbers through a "per capita" lens is additional useful in identifying how high national security is prioritized by country and the financial and population resources available to it. For example, North Korea has the highest number of total and active duty military number per captia, but this does not reflect it's economic power. This is also true for countries such as the United States and China, which have large total populations and total and active military numbers, but these numbers are not high in comparison to North Korea per captia. 
+
+
 ```{r}
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+
+military_spending <- read_csv("C:/Users/easpi/OneDrive/Desktop/Georgetown MPP/MPP Spring 2023/Intro to Data Science/ppol670-assignments/assignment04/military_spending.csv")
+
+#Re-code to select needed variables
+
+near_peer <- c("China", "European Union", "Iran", "Russian Federation",
+"United States")
+
+near_peer.spend <- filter(military_spending,
+(Name %in% near_peer))
+
+
+#Re-code data from wide to long
+
+select_mil_spend <- pivot_longer(near_peer.spend,
+names_to = "year",
+values_to = "spending", 5:50)
+
+#Time series line plot
+
+ggplot(data = select_mil_spend,
+mapping = aes(x = as.numeric(year), y = spending)) +
+geom_line(mapping = aes(color = Name)) +
+xlab("") +
+ylab("") +
+labs(title = "U.S. and Allies Military Spending Compared to Advasaries Military Spending Across Time",
+subtitle = "United States and allies more transparant about military spending compared to near peer threats",
+caption = "Source: The World Bank Database",
+x ="Year",
+y = " Military Spending /n in Billions") +
+theme(text = element_text(size = 10)) +
+theme_minimal() +
+     theme(axis.text.y = element_text(angle = 0),
+        axis.title.y = element_text(angle = 0, vjust = 1))
+
+#NEED TO CHANGE THE COLORS OF LINES
+#NEED TO FIGURE OUT HOW TO ADD FOLLOWING NOTE:
+#*China began reporting military spending in 1989 and Russian began reporting in 1993. Both countries are likely still not fully transparent with current reported spending amounts.
 
 ```
