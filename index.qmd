@@ -72,6 +72,9 @@ Total military is comprised of active military, reserve military and paramilitar
 
 Viewing each of these countries total and active military numbers through a "per capita" lens is additional useful in identifying how high national security is prioritized by country and the financial and population resources available to it. For example, North Korea has the highest number of total and active duty military number per captia, but this does not reflect it's economic power. This is also true for countries such as the United States and China, which have large total populations and total and active military numbers, but these numbers are not high in comparison to North Korea per captia. 
 
+## A Look at the United States Allies and Advarsaries Military Spending Across time
+
+## United States and allies more transparant about military spending compared to near peer threats
 
 ```{r}
 
@@ -91,32 +94,56 @@ near_peer <- c("China", "European Union", "Iran", "Russian Federation",
 near_peer.spend <- filter(military_spending,
 (Name %in% near_peer))
 
-
 #Re-code data from wide to long
 
 select_mil_spend <- pivot_longer(near_peer.spend,
 names_to = "year",
 values_to = "spending", 5:50)
 
+#Rename Russia
+select_mil_spend <- select_mil_spend %>% 
+  mutate(Name = if_else(Name == "Russian Federation", "Russia", Name))
+
+#Factorize to specify order of legend
+
+select_mil_spend$Name <- factor(select_mil_spend$Name, 
+                                levels = c("United States", "European Union", 
+                                           "China", "Russia", "Iran"))
+
+#Convert military spending totals to billions
+
+select_mil_spend$spending <- select_mil_spend$spending / 1e9
+
 #Time series line plot
 
 ggplot(data = select_mil_spend,
 mapping = aes(x = as.numeric(year), y = spending)) +
 geom_line(mapping = aes(color = Name)) +
+    scale_color_manual(values = c("United States" = "green",
+                                  "European Union" = "blue",
+                                    "China" = "red", 
+                                  "Russia" = "black",
+                                "Iran" = "orange"
+                                )) +
+  geom_vline(xintercept = 1993, linetype = "dashed", color = "gray") +
+  geom_text(x = 1993, y = 400, label = "Russia\n(1993)", 
+            hjust = -0.1, vjust = -0.5, color = "gray") +
+  geom_vline(xintercept = 1989, linetype = "dashed", color = "gray") +
+  geom_text(x = 1989, y = 450, label = "China\n(1989)", 
+            hjust = -0.1, vjust = -0.5, color = "gray") +
 xlab("") +
 ylab("") +
-labs(title = "U.S. and Allies Military Spending Compared to Advasaries Military Spending Across Time",
-subtitle = "United States and allies more transparant about military spending compared to near peer threats",
+labs(title = "U.S. and Allies Military Spending Compared to Advasaries \nMilitary Spending Across Time",
+subtitle = "United States and allies more transparant about military spending \ncompared to near peer threats",
 caption = "Source: The World Bank Database",
 x ="Year",
-y = " Military Spending /n in Billions") +
+y = " Military Spending \n(in Billions)",
+color = "Country") +
 theme(text = element_text(size = 10)) +
 theme_minimal() +
      theme(axis.text.y = element_text(angle = 0),
         axis.title.y = element_text(angle = 0, vjust = 1))
 
-#NEED TO CHANGE THE COLORS OF LINES
-#NEED TO FIGURE OUT HOW TO ADD FOLLOWING NOTE:
-#*China began reporting military spending in 1989 and Russian began reporting in 1993. Both countries are likely still not fully transparent with current reported spending amounts.
-
 ```
+
+Looking at military spending over time highlights the lack of transparency regarding military spending between Russia and China compared to the United States and our alliances (Europe). Russia and China are considered “near-peer” threats to the United States because of their increasing military power and strength regarding weapons, technology, and force. Iran is included because, while it is a threat to the United States, it is not considered “near-peer.” Iran is a useful gauging point to compare the reported spending of China and Russia because it is highly unlikely that China and Russia are actually spending close to the same amount of money on their military as Iran. China began reporting military spending in 1989 and Russian began reporting in 1993. Both countries are likely still not fully transparent with current reported spending amounts. Monitoring military spending is an important aspect to national and global security and the balance of power. It is likely that threats to the United States, such as China and Russia, are growing their military power, but through unclear means that should perhaps be further investigated.
