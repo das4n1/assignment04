@@ -16,7 +16,7 @@ National security is the security and defense of a sovereign state, including it
 
 ## A By-Country Look at Active-Duty Military Versus Total Military per Capita Globally
 
-## Countries with larger total and active duty forces are not the same per captia... and what it means. 
+## Countries with larger total and active duty forces are not the same per capita... and what it means. 
 
 ```{r}
 
@@ -148,6 +148,32 @@ theme_minimal() +
 
 Looking at military spending over time highlights the lack of transparency regarding military spending between Russia and China compared to the United States and our alliances (Europe). Russia and China are considered “near-peer” threats to the United States because of their increasing military power and strength regarding weapons, technology, and force. Iran is included because, while it is a threat to the United States, it is not considered “near-peer.” Iran is a useful gauging point to compare the reported spending of China and Russia because it is highly unlikely that China and Russia are actually spending close to the same amount of money on their military as Iran. China began reporting military spending in 1989 and Russian began reporting in 1993. Both countries are likely still not fully transparent with current reported spending amounts. Monitoring military spending is an important aspect to national and global security and the balance of power. It is likely that threats to the United States, such as China and Russia, are growing their military power, but through unclear means that should perhaps be further investigated.
 
+## Irregular Threats
+
+## Paramilitary sizes by country
+```{r}
+#Establishing the countries with high paramilitary counts
+paramil <- globalmilitary %>% arrange(desc(paramilitary))
+
+#Taking only the top ten, starting with a vector
+paramil_list <- c("India", "Russia", "People's Republic of China", "Egypt", "Brazil", "Pakistan", "Indonesia", "Malaysia", "North Korea", "Colombia")
+
+#Filtering out other countries
+paramil.filt <- subset(paramil, Country %in% paramil_list)
+
+ggplot(paramil.filt) +
+  geom_col(aes(x = Country,
+                     y = paramilitary,
+               color = Country,
+               fill = Country)) +
+  scale_color_hue() +
+  labs(title = "Countries with largest paramilitaries", subtitle = "Not Including Active Duty State Military members", y = "# of Paramilitary Members", caption = "Source: The Military Balance (2017) | International Institute of Strategic Studies") +
+  theme(axis.text.x.bottom = element_blank())
+
+```
+In addition to the threats posed by traditional, conventional military races, an increasingly relevant force on the battlefield is that of the paramilitary, an organized, sometimes sanctioned force that acts outside of the traditional military command structure and may be used to accomplish strategic, political, or informational goals according to either their own motivation, or under the auspices of a state when deniability is necessary. These actors have proven to be significant strategic forces in conflicts around the world, and their increasing sizes have severe policy implications for how to deter aggression and establish accountability for attacks.
+
+## Map of Fatal Terror Attacks in the US
 ```{r}
 #| output: false
 library(tidyverse)
@@ -196,4 +222,5 @@ k_terrorsf <- terrorsf %>%
   ) + 
   labs(title = "Fatal Terror Attacks In the US", subtitle = "Scaled according to Fatalities", color = "Deaths", size = "Deaths", caption = "Source: START Global Terrorism Database") +
   theme_void()
-  ```
+```
+This map is designed to offer a picture of fatal terror attacks in the United states over the last 50 years. By using color and size to emphasize the magnitude of an attack, one can identify where major attacks occurred. However, given catastrophic attacks are usually uncommon with specific contexts attacked to them (Take the Oklahoma City Bombing, the only notable attack in Oklahoma, for instance), the more obvious trend of attacks occurring near or in major population centers becomes more evident. The implication of this for American security and defense policy relates to identifying major vulnerabilities that non-state rivals can exploit, in addition to the previous discussion of state peers. Developing security policy that is able to account for these threats remains a pressing policy challenge.
