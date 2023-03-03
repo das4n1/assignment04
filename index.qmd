@@ -24,7 +24,7 @@ library(readxl)
 library(ggplot2)
 library(dplyr)
 
-globalmilitary <- read_excel("C:/Users/easpi/OneDrive/Desktop/Georgetown MPP/MPP Spring 2023/Intro to Data Science/ppol670-assignments/assignment04/globalmilitary.xlsx")
+globalmilitary <- read_excel("C:/Users/tj/OneDrive/Desktop/datascience/week04/assignment04/globalmilitary.xlsx")
 
 
 # Rename "People's Republic of China" to "China"
@@ -84,7 +84,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 
-military_spending <- read_csv("C:/Users/easpi/OneDrive/Desktop/Georgetown MPP/MPP Spring 2023/Intro to Data Science/ppol670-assignments/assignment04/military_spending.csv")
+military_spending <- read_csv("C:/Users/tj/OneDrive/Desktop/datascience/week04/assignment04/military_spending.csv")
 
 #Re-code to select needed variables
 
@@ -147,3 +147,53 @@ theme_minimal() +
 ```
 
 Looking at military spending over time highlights the lack of transparency regarding military spending between Russia and China compared to the United States and our alliances (Europe). Russia and China are considered “near-peer” threats to the United States because of their increasing military power and strength regarding weapons, technology, and force. Iran is included because, while it is a threat to the United States, it is not considered “near-peer.” Iran is a useful gauging point to compare the reported spending of China and Russia because it is highly unlikely that China and Russia are actually spending close to the same amount of money on their military as Iran. China began reporting military spending in 1989 and Russian began reporting in 1993. Both countries are likely still not fully transparent with current reported spending amounts. Monitoring military spending is an important aspect to national and global security and the balance of power. It is likely that threats to the United States, such as China and Russia, are growing their military power, but through unclear means that should perhaps be further investigated.
+
+```{r}
+#| output: false
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(tigris)
+library(remotes)
+library(rgeoboundaries)
+library(sf)
+library(tinytex)
+```
+```{r}
+#| warning: false
+terrordata <- read_xlsx("C:/Users/tj/OneDrive/Desktop/datascience/week04/assignment04/globalterror.xlsx")
+```
+```{r}
+#| output: false
+terrordata <- terrordata[!is.na(terrordata$longitude), ]
+terrorsf <- st_as_sf(terrordata, coords = c("longitude", "latitude"))
+terrorsf <- terrorsf %>% filter(country == 217)
+united.states <- geoboundaries(country = "United States of America", adm_lvl = "adm1", type = "SSCGS")
+united.states <- united.states %>% filter(shapeName != "Guam") %>% filter(shapeName != "Commonwealth of the Northern Mariana Islands") %>% filter(shapeName != "American Samoa") %>% filter(shapeName != "Alaska")
+st_set_crs(united.states, value = 4326)
+terrorsf <- st_set_crs(terrorsf, value = 4326)
+```
+```{r}
+#Sorting by number of fatalities in an attack
+k_terrorsf <- terrorsf %>%
+  filter(., nkill > 0) %>%
+  arrange(., nkill)
+
+  ggplot(data = united.states) +
+  scale_color_gradient2(
+    low = "green",
+    mid = "yellow",
+    high = "red",
+    midpoint = 750
+  ) +
+  geom_sf(
+    data = united.states
+  ) +
+  geom_sf(
+    data = k_terrorsf,
+    aes(color=nkill, size = nkill, alpha = .02) 
+  ) + 
+  labs(title = "Fatal Terror Attacks In the US", subtitle = "Scaled according to Fatalities", color = "Deaths", size = "Deaths", caption = "Source: START Global Terrorism Database") +
+  theme_void()
+  ```
